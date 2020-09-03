@@ -1,0 +1,9 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% block extrahead %}
+<!--  custom addition for handling js problem on export file format issue -->
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+<!--  custom addition for handling js problem on export file format issue -->
+
+{% endblock %}
