@@ -106,7 +106,7 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+.venv-covid19/
 env/
 venv/
 ENV/
