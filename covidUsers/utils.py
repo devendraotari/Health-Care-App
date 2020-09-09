@@ -220,3 +220,30 @@ def get_postive(user=None, forPositive=True):
 		covidpositive = user_covid_status(user) 
 		if covidpositive:
 			positiveusers.append(user.id)
+
+# util for doctor and patient profiles
+# def is_doctor(instance):
+#     if instance.user_role.role == ROLE_CHOICES[0][0]:
+#         return True
+#     else:
+#         return False
+
+# def is_patient(instance):
+#     if instance.user_role.role == ROLE_CHOICES[2][0]:
+#         return True
+#     else:
+#         return False        
+
+# def create_doctor_profile(instance):
+#     if is_doctor(instance):
+#         profile = DoctorProfile.objects.create(doctor=instance)
+#         return profile
+#     else:
+#         return None
+
+# def create_patient_profile(instance):
+#     if is_patient(instance):
+#         profile = PatientProfile.objects.create(patient=instance)
+#         return profile        
+#     else:
+#         return None

@@ -8,17 +8,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
 		model = CustomUser
 		fields = '__all__'
 
+class RoleSerializer(serializers.ModelSerializer):
+	class Meta():
+		model = Role
+		fields = '__all__'
 
 class UserProfileSerializer(serializers.ModelSerializer):
 	email = serializers.SerializerMethodField()
+	user_role = RoleSerializer(read_only=True)
 	class Meta:
 		model = CustomUser
 		fields = (	'id',
 					'name',
-					# 'lastName',
 					'email',
-					# 'diabetic',
-					# 'heartPatient',
 					'dob',
 					'age',
 					'phone',
@@ -27,11 +29,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 					'longitude',
 					'gender',
 					'otpVerified',
-					'Volunteer',
+					'user_role',
 					'createdAt',
 					'updatedAt')
 
-		depth = 1
+		depth = 2
 
 	def get_email(self,obj):
 		if obj.email == obj.phone:
@@ -123,6 +125,6 @@ class CovidInitialQuestionsResponseSerializer(serializers.ModelSerializer):
 
 class dropdownSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = dropdownValues
+		model = DropdownValues
 		fields = ('id','value')
 		

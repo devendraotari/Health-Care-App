@@ -133,6 +133,6 @@ admin.site.register(QuarantineSymptomsQuestions)
 admin.site.register(UserQuarantineSymptomsData)
 admin.site.register(Message)
 
-admin.site.register(dropdownValues)
+admin.site.register(DropdownValues)
 
 admin.site.register(Links)

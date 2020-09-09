@@ -25,19 +25,33 @@ LANGUAGE_CHOICES = (
         ('M', 'Marathi'),
     )
 
-DROPDOWN_CHOICES = (
+ROLE_CHOICES = (
         ('D', 'Doctor'),
         ('C', 'Counsellor'),
+		('P','patient'),
         ('O', 'Others'),
     )
+	
+class Role(models.Model):
+	role = models.CharField(choices=ROLE_CHOICES, max_length=50, blank = True)
+
+	def __str__(self):
+		return self.role
+	
+
 class UserManager(BaseUserManager):
 	use_in_migrations = True
 
-	def create_user(self,email,password):
+	def create_user(self,email,password,*args, **kwargs):
 		user = self.model(email = self.normalize_email(email))
 		user.username = email
 		user.set_password(password)
 		user.is_active = True
+		print("printing kwargs")
+		print(*args)
+		print(kwargs)
+		print("printing kwargs")
+		user.user_role = kwargs['role']
 		user.save()
 		return user
 
@@ -49,8 +63,8 @@ class UserManager(BaseUserManager):
 		user.save()
 		return user
 
-
-class dropdownValues(models.Model):
+# changed name from dropdownValues to DropdownValues
+class DropdownValues(models.Model):
 	value = models.CharField(max_length=250 , blank = True , null = True)
 	lang = models.CharField(max_length=2, choices=LANGUAGE_CHOICES, null = True, blank = True)
 	is_deleted = models.BooleanField(default=False)
@@ -65,19 +79,17 @@ class dropdownValues(models.Model):
 
 class CustomUser(AbstractUser):
 	name = models.CharField(max_length = 100, null = True, blank = True)
-	# lastName = models.CharField(max_length = 100, null = True, blank = True)
 	email = models.EmailField(unique=False)
 	phone = models.CharField(max_length = 100, null = True, blank = True)
-	address = models.TextField()
-	latitude = models.FloatField(default =0.0)
-	longitude = models.FloatField(default =0.0)
-	# diabetic = models.BooleanField(default = False)
-	# heartPatient = models.BooleanField(default = False)
+	address = models.TextField(max_length = 100, blank = True)
+	latitude = models.FloatField(default =0.0, blank = True)
+	longitude = models.FloatField(default =0.0, blank = True)
 	age = models.IntegerField(default=0.0)
 	dob = models.DateField(blank=True,null=True)
 	gender = models.CharField(max_length=2, choices=GENDER_CHOICES, null = True, blank = True) 
 	otpVerified = models.BooleanField(default = False,null = True,blank =True)
-	Volunteer = models.ForeignKey(dropdownValues, on_delete = models.CASCADE,null = True,blank =True)
+	lang = models.ForeignKey(DropdownValues, on_delete = models.CASCADE,null = True,blank =True)
+	user_role = models.ForeignKey(Role, verbose_name="user_role", related_name='user_role',null=True, on_delete=models.CASCADE) 
 	createdAt = models.DateTimeField(auto_now_add = True)
 	updatedAt = models.DateTimeField(auto_now = True)
 	

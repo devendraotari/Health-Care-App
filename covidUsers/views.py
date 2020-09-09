@@ -19,33 +19,51 @@ from .utils import *
 # from rest_framework.generics import GenericAPIView
 
 
+class RoleView(APIView):
+	def get(self,request):
+		data = Role.objects.all()
+		try:
+			serialized = RoleSerializer(data,many=True)
+			return Response(serialized.data,status=status.HTTP_200_OK)
+		except Exception as e:
+			traceback.print_exc()
+			return Response({"Error":str(e)},status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfile(APIView):
 	permission_classes = ()
 	
 	def post(self, request):
 		data = request.data
+		role = None
+
 		if CustomUser.objects.filter(phone = data.get('phone')).exists():
 			return Response({'Error': "user with this phone already exists"}, status = status.HTTP_400_BAD_REQUEST)
+		if data.get('role')=='P':
+			role = Role.objects.all().filter(role='P').first()
+			# print(f"role instance type -> {type(patient_role_instance)}")
+			# user.user_role = patient_role_instance
+		if data.get('role')=='D':
+			role = Role.objects.all().filter(role='D').first()
+			# print(f"role instance type -> {type(doctor_role_instance)}")
+			# user.user_role = doctor_role_instance
 		try:
 			with transaction.atomic():
 				user = CustomUser.objects.create_user(
 					email = data.get('email', None) if data.get('email') else data.get('phone') ,
-					password = data.get('phone', None))
-
+					password = data.get('phone', None),role = role)
+				
 				user.name = data.get('name', None)
-				# user.lastName = data.get('lastName', None)
-				# user.diabetic = data.get('diabetic', None)
 				user.gender = data.get('gender', None)
 				user.dob = data.get('dob', None)
 				user.age = data.get('age', 0)
 				user.phone = data.get('phone', None)
 				user.address = data.get('address', None)
 				user.otpVerified = data.get('otpVerified', None)
-				user.Volunteer = dropdownValues.objects.get(id = data.get('Volunteer')) if data.get('Volunteer') else None
 				user.latitude = data.get('latitude', None)
 				user.longitude = data.get('longitude', None)
+				print('********before save transcaction atomic *******')
 				user.save()
+				print('******** after save transcaction atomic *******')
 				
 				if 'device_token' in data and 'device_type' in data:		
 					obj, created = UserFireBaseDeviceToken.objects.update_or_create(
