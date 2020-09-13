@@ -13,6 +13,7 @@ from consultation.models import (
 
 def is_doctor(instance):
     if instance.user_role.role == ROLE_CHOICES[0][0]:
+        print("Doctor profile will be created")
         return True
     else:
         return False
@@ -20,6 +21,7 @@ def is_doctor(instance):
 
 def is_patient(instance):
     if instance.user_role.role == ROLE_CHOICES[2][0]:
+        print("Patient profile will be created")
         return True
     else:
         return False
@@ -27,9 +29,9 @@ def is_patient(instance):
 
 def create_doctor_profile(instance):
     if is_doctor(instance):
-        qualification = Qualification()
-        qualification.save()
-        profile = DoctorProfile.objects.create(doctor=instance,qualification=qualification)
+        # qualification = Qualification()
+        # qualification.save()
+        profile = DoctorProfile.objects.create(doctor=instance)
         return profile
     else:
         return None

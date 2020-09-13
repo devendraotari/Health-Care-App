@@ -35,7 +35,9 @@ class UserProfile(APIView):
 	def post(self, request):
 		data = request.data
 		role = None
-
+		print('********USER profile -- POST*******')
+		print(f"role data type ->{type(data.get('role'))} value-> {data.get('role')}")
+		print('********USER profile -- POST*******')
 		if CustomUser.objects.filter(phone = data.get('phone')).exists():
 			return Response({'Error': "user with this phone already exists"}, status = status.HTTP_400_BAD_REQUEST)
 		if data.get('role')=='P':
@@ -101,12 +103,48 @@ class loginAPIView(APIView):
 class Me(APIView):
 
 	def get(self,request):
+		print(request)
 		user = request.user
 		try:
 			serialized = UserProfileSerializer(user)
 			return Response(serialized.data,status=status.HTTP_200_OK)
 		except Exception as e:
 			return Response({"Error":str(e)},status=status.HTTP_400_BAD_REQUEST)
+	
+	def put(self,request):
+		user = request.user
+		new_data = request.data
+
+		try:
+			with transaction.atomic():
+				user.name = new_data.get('name', user.name)
+				user.gender = new_data.get('gender', user.gender)
+				user.dob = new_data.get('dob', user.dob)
+				user.age = new_data.get('age', user.age)
+				user.phone = new_data.get('phone', user.phone)
+				user.address = new_data.get('address', user.address)
+				user.otpVerified = new_data.get('otpVerified', user.otpVerified)
+				user.latitude = new_data.get('latitude', user.latitude)
+				user.longitude = new_data.get('longitude', user.longitude)
+				user.save()
+				
+				if 'device_token' in new_data and 'device_type' in new_data:		
+					obj, created = UserFireBaseDeviceToken.objects.update_or_create(
+								user = user,
+								device_token = new_data.get('device_token'),
+								device_type = new_data.get('device_type')
+								)		
+				serialized_user = CustomUserSerializer(user)
+				
+				token_obj = Token.objects.get(user = user)
+				response = {'key': token_obj.key,'user':serialized_user}
+		except Exception as e:
+			traceback.print_exc()
+			return Response({'Error': str(e)}, status = status.HTTP_400_BAD_REQUEST)
+
+		return Response(response, status = status.HTTP_201_CREATED)
+
+
 
 class HospitalDetails(APIView):
 	

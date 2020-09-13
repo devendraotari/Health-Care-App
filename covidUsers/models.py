@@ -33,11 +33,21 @@ ROLE_CHOICES = (
     )
 	
 class Role(models.Model):
-	role = models.CharField(choices=ROLE_CHOICES, max_length=50, blank = True)
+	role = models.CharField(choices=ROLE_CHOICES, max_length=50,unique=True, blank = True)
 
 	def __str__(self):
 		return self.role
 	
+class UserQuerySet(models.QuerySet):
+	def all_doctors(self,*args, **kwargs):
+		doctor_role = Role.objects.all().filter(role=ROLE_CHOICES[0][0]).first()
+		return self.all().filter(user_role=doctor_role)
+
+	def all_patients(self,*args, **kwargs):
+		pass
+	
+	def all_patients_by_doctor(self,doctor=None,*args, **kwargs):
+		pass
 
 class UserManager(BaseUserManager):
 	use_in_migrations = True
@@ -62,6 +72,18 @@ class UserManager(BaseUserManager):
 		user.is_superuser = True
 		user.save()
 		return user
+	
+	def get_queryset(self,*args, **kwargs):
+		return UserQuerySet(self.model, using=self._db)
+	
+	def all_doctors(self,*args, **kwargs):
+		return self.get_queryset().all_doctors()
+
+	def all_patients(self,*args, **kwargs):
+		return self.get_queryset().all_patients()
+
+	def all_patients_by_doctor(self,doctor=None,*args, **kwargs):
+		return self.get_queryset().all_patients_by_doctor(doctor,*args, **kwargs)
 
 # changed name from dropdownValues to DropdownValues
 class DropdownValues(models.Model):

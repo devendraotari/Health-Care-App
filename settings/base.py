@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-    # 'rest_auth',
+    'rest_auth',
     'import_export',
     'consultation'
 ]
@@ -105,11 +105,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'settings.wsgi.application'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PARSER_CLASSES': (
-    #     'rest_framework.parsers.JSONParser',
-    #     'rest_framework.parsers.MultiPartParser',
-    #     'rest_framework.parsers.FormParser',
-    # ),
+   
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         
@@ -117,7 +113,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
  ),
-
 
 }
 
