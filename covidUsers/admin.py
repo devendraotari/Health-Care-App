@@ -116,14 +116,15 @@ admin.site.site_title = 'COVID 19 ADMIN'
 admin.site.site_url = '/'
 admin.empty_value_display = '**Empty**'
 
-admin.site.register(CustomUser, CustomerUserAdmin)
 # admin.site.register(CoronaHospital)
+# admin.site.register(UserQuarantineData)
+admin.site.register(Role)
+admin.site.register(CustomUser, CustomerUserAdmin)
 admin.site.register(NewsFeed)
 admin.site.register(CovidInitialQuestions)
 admin.site.register(Choice)
 
 admin.site.register(CovidInitialQuestionsResponse)
-# admin.site.register(UserQuarantineData)
 
 admin.site.register(UserFireBaseDeviceToken)
 

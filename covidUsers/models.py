@@ -30,6 +30,7 @@ ROLE_CHOICES = (
         ('C', 'Counsellor'),
 		('P','patient'),
         ('O', 'Others'),
+		('A','Admin')
     )
 	
 class Role(models.Model):
@@ -57,19 +58,17 @@ class UserManager(BaseUserManager):
 		user.username = email
 		user.set_password(password)
 		user.is_active = True
-		print("printing kwargs")
-		print(*args)
-		print(kwargs)
-		print("printing kwargs")
 		user.user_role = kwargs['role']
 		user.save()
 		return user
 
 
 	def create_superuser(self,username,email,password):
-		user = self.create_user(email = email,password = password)
+		role = Role.objects.get_or_create(role="A")[0]
+		user = self.create_user(email = email,password = password,role=role)
 		user.is_staff = True
 		user.is_superuser = True
+		user.user_role = role
 		user.save()
 		return user
 	
