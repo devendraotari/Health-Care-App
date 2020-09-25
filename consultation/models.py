@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from covidUsers.models import CustomUser
-from .managers import QualificationManager
+from .managers import QualificationManager,ConsultationManager
 # SPECIALITY_CHOICES = (
 #     ("cardiac", "Cardiologist"),
 #     ("ENT", "ENT specialist"),
@@ -102,7 +102,7 @@ class Qualification(models.Model):
     doctor_profile = models.ForeignKey(
         DoctorProfile,
         verbose_name="doctor_profile",
-        # related_name="doctor_qualification",
+        related_name="doctor_qualification",
         on_delete=models.CASCADE,
     )
     objects = QualificationManager()
@@ -139,7 +139,7 @@ class PatientProfile(models.Model):
         verbose_name_plural = "PatientProfiles"
 
     def __str__(self):
-        return "Patient Name" + self.patient.name
+        return "Patient Name" + self.patient.username
 
     def get_absolute_url(self):
         return reverse("PatientProfile_detail", kwargs={"pk": self.pk})
@@ -221,15 +221,17 @@ class GeneralSymptom(models.Model):
         verbose_name_plural = "GeneralSymptoms"
 
     def __str__(self):
-        return self.patient.name + "General symptoms"
+        return "created by "+ self.created_by.username
 
     def get_absolute_url(self):
         return reverse("GeneralSymptom_detail", kwargs={"pk": self.pk})
 
 
 class FileLabel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     name = models.CharField(
-        verbose_name="label_name", unique=True,blank=False, null=False, max_length=50
+        verbose_name="label_name",blank=False, null=False, max_length=50
     )
     description = models.TextField(
         verbose_name="description", blank=True, null=True, max_length=150
@@ -248,10 +250,13 @@ class FileLabel(models.Model):
 
 
 class XRayField(models.Model):
-    xray = models.FileField(verbose_name="xray_file", upload_to=None, max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    xray = models.FileField(verbose_name="xray_file", upload_to="XRay-data/", max_length=100)
     label = models.ForeignKey(
         FileLabel, verbose_name="xray_label", null=True, on_delete=models.SET_NULL
     )
+
     description = models.TextField(
         verbose_name="file_description", blank=True, null=True
     )
@@ -260,7 +265,7 @@ class XRayField(models.Model):
     )
     uploaded_for = models.ForeignKey(
         CustomUser,
-        related_name="my_xrays",
+        related_name="xrays_for_review",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -311,13 +316,13 @@ class Consultation(models.Model):
         verbose_name="symptoms_data",
         on_delete=models.SET_NULL,
     )
-
+    objects = ConsultationManager()
     class Meta:
         verbose_name = "Consultation"
         verbose_name_plural = "Consultations"
 
     def __str__(self):
-        return self.id
+        return "consultation_data"
 
     def get_absolute_url(self):
         return reverse("DoctorsConsultation_detail", kwargs={"pk": self.pk})

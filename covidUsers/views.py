@@ -95,7 +95,7 @@ class loginAPIView(APIView):
 		if CustomUser.objects.filter(phone = data.get('phone')).exists():
 			user = CustomUser.objects.get(phone = data.get('phone'))
 			token_obj = Token.objects.get(user = user)
-			response = {'key': token_obj.key}
+			response = {'key': "token_obj.key"}
 			return Response(response, status = 200)
 		else:
 			return Response({'detail': "Phone number not exists."}, status = status.HTTP_202_ACCEPTED)
