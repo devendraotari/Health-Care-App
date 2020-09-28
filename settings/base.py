@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'import_export',
-    'consultation'
+    'consultation',
+    'payments'
 ]
 
 MIDDLEWARE = [

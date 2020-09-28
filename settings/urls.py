@@ -26,7 +26,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('covidUsers.urls')),
     path('api/v1/', include('helpers.urls')),
-    path('consultation/',include('consultation.api.urls'))
+    path('consultation/',include('consultation.api.urls')),
+    path('payments/',include('payments.urls'))
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
