@@ -1,3 +1,4 @@
+from django.http import request
 from django.shortcuts import render
 from django.db import transaction
 from django.db.models import Q
@@ -196,8 +197,7 @@ class DoctorProfileDetailView(APIView):
 
     def put(self, request):
         user = get_request_user(request)
-        request = remove_blank_fields(request)
-        validated_data = request.data
+        validated_data = remove_blank_fields(request)
         if user and validated_data:
             doctor_profile = (
                 DoctorProfile.objects.all()
@@ -356,7 +356,6 @@ class GeneralSymptomsView(APIView, RetrieveModelMixin):
         context = None
         response_status = None
         if user and user.user_role.role == "P":
-            request = remove_blank_fields(request)
             resultDict = create_or_update_symptoms(user=user, request=request)
             try:
                 with transaction.atomic():
@@ -478,8 +477,7 @@ class ConsultationsView(APIView):
 
     def post(self, request, *args, **kwargs):
         user = get_request_user(request)
-        request = remove_blank_fields(request)
-        validated_data = request.data
+        validated_data = remove_blank_fields(request)
         consultation = None
         if user and user.user_role.role == "D":
             if "symptom_id" in validated_data:
@@ -511,7 +509,36 @@ class ConsultationsView(APIView):
                 {"msg": "Authentication token needed in request headers"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
+    
+    def put(self,request,pk):
+        user = get_request_user(request)
+        content,response_status = (None,None)
+        validated_data = remove_blank_fields(request)
+        if user and user.user_role.role == "D":
+            try:
+                consultation = Consultation.objects.get(id=pk)
+                with transaction.atomic():
+                    consultation.Note = validated_data.get("note", consultation.Note)
+                    consultation.prescription_text = validated_data.get(
+                        "prescription_text", consultation.prescription_text
+                    )
+                    consultation.prescription = validated_data.get(
+                        "prescription", consultation.prescription
+                    )
+                    consultation.save()
+                serialized = ConsultationSerializer(consultation)
+                content = serialized.data
+                response_status = status.HTTP_200_OK
+            except Exception as e:
+                content = {"Error":f"{str(e)}"}
+                response_status = status.HTTP_404_NOT_FOUND
+        else:
+            content = {"msg": "Authentication token needed in request headers"}
+            response_status = status.HTTP_400_BAD_REQUEST
+        return Response(
+            content,
+            status=response_status,
+        )
 
 """            
  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
