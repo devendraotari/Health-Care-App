@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
+import razorpay
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'import_export',
     'consultation',
     'payments',
+    'appointment',
 ]
 
 MIDDLEWARE = [
@@ -210,6 +211,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 GRAPPELLI_ADMIN_TITLE = "COVID19 ADMIN"
 
-# razor pay settings
-RAZOR_PAY_KEY_ID = "rzp_test_KU6qZJQTkdSPYJ"
-RAZOR_PAY_KEY_SECRET = "0njTUZIedcCrSgKOwSkEibDI"
+# Razor pay settings
+RAZOR_PAY_KEY_ID="rzp_test_KU6qZJQTkdSPYJ"
+RAZOR_PAY_KEY_SECRET="0njTUZIedcCrSgKOwSkEibDI"
+
+razorpay_client = razorpay.Client(auth = (RAZOR_PAY_KEY_ID, RAZOR_PAY_KEY_SECRET))
+razorpay_client.set_app_details({"title" : "HealthCare-CRM", "version" : "v1.0"})

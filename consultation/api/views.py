@@ -122,7 +122,7 @@ class QualificationDetailsAndUpdateView(APIView):
                 response_status = status.HTTP_400_BAD_REQUEST
         else:
             content = {"msg": "Authentication token needed in request headers"}
-            response_status = status.HTTP_400_BAD_REQUEST
+            response_status = status.HTTP_403_FORBIDDEN
 
         return Response(content, status=response_status)
 
@@ -191,7 +191,7 @@ class DoctorProfileDetailView(APIView):
         else:
             return Response(
                 {"msg": "Authentication token needed in request headers"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
 
     def put(self, request):
@@ -240,7 +240,7 @@ class DoctorProfileDetailView(APIView):
         else:
             return Response(
                 {"msg": "Authentication token needed in request headers"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
 
 
@@ -278,7 +278,7 @@ class PatientProfileDetailView(APIView):
         else:
             return Response(
                 {"msg": "Authentication token needed in request headers"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
 
     def put(self, request):
@@ -308,7 +308,7 @@ class PatientProfileDetailView(APIView):
         else:
             return Response(
                 {"msg": "Authentication token needed in request headers"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
 
 
@@ -331,13 +331,6 @@ class GeneralSymptomsView(APIView, RetrieveModelMixin):
     authentication_classes = [authentication.TokenAuthentication]
     queryset = GeneralSymptom.objects.all()
     serializer_class = GeneralSymptomSerializer
-
-    def get_object(self, request, pk):
-        context = {
-            "msg": "General symptoms form is created successfully",
-            "general_symtopms id": pk,
-        }
-        return Response(context)
 
     def get(self, request, pk=None):
         user = get_request_user(request)
@@ -365,7 +358,6 @@ class GeneralSymptomsView(APIView, RetrieveModelMixin):
         if user and user.user_role.role == "P":
             request = remove_blank_fields(request)
             resultDict = create_or_update_symptoms(user=user, request=request)
-            print(resultDict)
             try:
                 with transaction.atomic():
                     general_symptom = resultDict.get("general_symptom", None)
@@ -391,12 +383,11 @@ class GeneralSymptomsView(APIView, RetrieveModelMixin):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
-            print(user.user_role)
             return Response(
                 {
                     "msg": "Authentication token needed in request headers and user must be a patient"
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
 
     def put(self, request, pk, *args, **kwargs):
@@ -453,7 +444,6 @@ class ConsultationsView(APIView):
                 )
             else:
                 consultations = Consultation.objects.by_user_id(user.id)
-                print(type(consultations))
             serialized_data = ConsultationSerializer(consultations, many=True)
             return Response({"consultation_data": serialized_data.data})
         else:
