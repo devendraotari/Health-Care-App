@@ -8,13 +8,13 @@ urlpatterns = [
     # request type post
     path("add-timeslot/", TimeSlotView.as_view()),
     # request type put
-    path("update-timeslot/", TimeSlotView.as_view()),
+    path("update-timeslot/<int:pk>", TimeSlotView.as_view()),
     # request type delete
-    path("delete-timeslot/", TimeSlotView.as_view()),
+    path("delete-timeslot/<int:pk>", TimeSlotView.as_view()),
     # request type post
     path("book-appointment/",AppointmentView.as_view()),
     # request type get
     path("get-appointment/",AppointmentView.as_view()),
     # request type delete
-    path("delete-appointment/",AppointmentView.as_view()),
+    path("delete-appointment/<int:pk>",AppointmentView.as_view()),
 ]

@@ -25,14 +25,15 @@ class TimeSlotView(APIView):
         user = get_request_user(request)
         content = None
         response_status = None
-        if user:
+        if user and user.user_role.role == "P":
             try:
                 doctor_profile_id = request.data.get("doctor_profile_id", None)
                 doc_profileObj = (
                     DoctorProfile.objects.all()
                     .select_related("doctor")
                     .filter(id=doctor_profile_id)
-                )
+                ).first()
+
                 customUser_docObj = doc_profileObj.doctor
                 if pk:
                     timeslots = TimeSlot.objects.all().filter(
@@ -43,7 +44,7 @@ class TimeSlotView(APIView):
                         created_by=customUser_docObj
                     )
                 serialized = TimeSlotSerializer(timeslots, many=True)
-                content = {"Appointment": serialized.data}
+                content = {"Time slots": serialized.data}
                 response_status = status.HTTP_200_OK
             except ObjectDoesNotExist as odne:
                 content = {
@@ -55,6 +56,15 @@ class TimeSlotView(APIView):
             except Exception as e:
                 content = {"Error": str(e)}
                 response_status = status.HTTP_400_BAD_REQUEST
+        elif user and user.user_role.role == "D":
+            try:
+                timeslots = TimeSlot.objects.all().filter(created_by=user)
+                serialized = TimeSlotSerializer(timeslots, many=True)
+                content = {"Appointment": serialized.data}
+                response_status = status.HTTP_200_OK
+            except Exception as e:
+                content = {"Error": str(e)}
+                response_status = status.HTTP_404_NOT_FOUND
         else:
             content = {
                 "msg": "Authentication token needed in request headers and user has to be a doctor"
@@ -88,6 +98,39 @@ class TimeSlotView(APIView):
                 content = {"error": f"{str(e)}"}
                 response_status = status.HTTP_400_BAD_REQUEST
 
+        else:
+            content = {
+                "msg": "Authentication token needed in request headers and user has to be a doctor"
+            }
+            response_status = status.HTTP_400_BAD_REQUEST
+        return Response(content, status=response_status)
+    
+    def put(self, request, pk=None):
+        user = get_request_user(request)
+        content = None
+        response_status = None
+        if user and user.user_role.role == "D":
+            created_by = user
+            try:
+                start_time_str = request.data.get("start_time", None)
+                start_time = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M")
+                with transaction.atomic():
+                    timeslot = TimeSlot.objects.all().filter(created_by=created_by).first()
+                    timeslot.start_time = start_time
+                    timeslot.save()
+                serialized = TimeSlotSerializer(timeslot)
+                content = serialized.data
+                response_status = status.HTTP_200_OK
+
+            except ValueError as ve:
+                content = {
+                    "Error": f"{str(ve)}",
+                    "message": "date string format should be 2020-10-03 18:34",
+                }
+                
+            except Exception as e:
+                content = {"error": f"{str(e)}"}
+                response_status = status.HTTP_400_BAD_REQUEST
         else:
             content = {
                 "msg": "Authentication token needed in request headers and user has to be a doctor"
@@ -139,9 +182,9 @@ class AppointmentView(APIView):
         elif user:
             try:
                 if user.user_role.role == "D":
-                    doc_profileObj = DoctorProfile.objects.get(doctor=user)
+                    # doc_profileObj = DoctorProfile.objects.get(doctor=user)
                     appointments = Appointment.objects.all().filter(
-                        Q(booking_slot__created_by=doc_profileObj)
+                        Q(booking_slot__created_by=user)
                     )
                     serialized = AppointmentSerializer(appointments, many=True)
                     content = {"Appointments": serialized.data}
@@ -223,7 +266,7 @@ class AppointmentView(APIView):
         else:
             content = {
                 "msg": '''Authentication token needed in request 
-                            headers and user has to be a doctor'''
+                            headers and user has to be a Patient'''
             }
             response_status = status.HTTP_400_BAD_REQUEST
         return Response(content, status=response_status)

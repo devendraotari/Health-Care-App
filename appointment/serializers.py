@@ -5,13 +5,13 @@ from .models import TimeSlot,Appointment
 from covidUsers.serializers import CustomUserSerializer
 
 class TimeSlotSerializer(serializers.ModelSerializer):
-    created_by = CustomUserSerializer()
+    # created_by = CustomUserSerializer()
     class Meta:
         model = TimeSlot
         fields = '__all__'
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    booked_by = CustomUserSerializer()
+    # booked_by = CustomUserSerializer()
     booking_slot = TimeSlotSerializer()
 
     class Meta:

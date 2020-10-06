@@ -116,7 +116,9 @@ class Qualification(models.Model):
     def get_absolute_url(self):
         return reverse("Qualification_detail", kwargs={"pk": self.pk})
 
-
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/
+#  Patient Related Models
+# //////////////////////////////////////////////////////////////\
 class PatientProfile(models.Model):
     """
     this class will store profile info for patient which will be
@@ -133,7 +135,19 @@ class PatientProfile(models.Model):
         related_name="patient",
     )
     medical_history = models.TextField(default="", null=True, blank=True)
+    '''
+    Fields to add in This model
+    • Present Complains:
+    • Surgical History:
 
+    • Family History: (Patient has any history of life style diseases in his/her family)
+
+    • Which all treatments have you taken previously? :
+
+    • What all medicines are you taking presently? :
+
+    • Do you have any allergy to specific medicines? :
+    '''
     class Meta:
         verbose_name = "PatientProfile"
         verbose_name_plural = "PatientProfiles"
